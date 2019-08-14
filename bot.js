@@ -190,6 +190,8 @@ if (process.argv[2] === 'cron') {
         return;
       }
 
+      upd.stt_result = result;
+
       const msgTemplate = 
       // message templpate
       /******************************************************************/
