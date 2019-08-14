@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const connectionString = process.env.STT_MONGO_CONNSTRING || 'mongodb://localhost:27017';
 const db_name = process.env.STT_DB_NAME || 'stt'
 const token = process.env.IAM_TOKEN || 'AQVN3pg1cg_oK3zS5u8ggJWjbCarvEJfup8O33LM'
-const bot = new Telegraf(process.env.BOT_TOKEN || '936876127:AAFnnLC2ykbfcKfzWnTp3O4XkuxLJMvgCEg')
+const bot = new Telegraf(process.env.BOT_TOKEN || '980480569:AAHmxr9NihLGfm9Ga56Wk8OXzObHzgv6UH0')
 
 
 async function saveUpdate(obj) {
