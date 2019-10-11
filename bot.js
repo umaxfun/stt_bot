@@ -63,7 +63,14 @@ async function checkStt(){
 
   while (await results.hasNext()) {
     const msg = await results.next();
-    console.log('Id:', msg.ticket.id)
+    console.log('Id:', msg.ticket.id);
+    if (!msg.ticket.id) {
+      console.error('another undefined id')
+      msg.status = 'stt error';
+      await saveUpdate(msg);
+      continue;
+    }
+
     const rawResult = await fetch(`https://operation.api.cloud.yandex.net/operations/${msg.ticket.id}`, {
       headers: {
         'Authorization': `Api-Key ${token}`
@@ -100,6 +107,11 @@ async function checkPosted() {
     // console.log(msg);
     const src_audio = msg.message.audio || msg.message.voice;
     const parts = [];
+    if (!msg.stt_result.response || !msg.stt_result.response.chunks) {
+      msg.status = 'stt error';
+      await saveUpdate(msg);
+      continue;
+    }
     msg.stt_result.response.chunks.forEach(c => {
       if (c.channelTag == 1) {
         parts.push(c.alternatives[0].text)
@@ -116,7 +128,13 @@ ${parts.join(' ')}
 `;
 /******************************************************************/
     console.log(msgTemplate);
-    const what_is_sent = await bot.telegram.sendMessage(msg.message.chat.id, msgTemplate);
+    let what_is_sent;
+    try {
+      what_is_sent = await bot.telegram.sendMessage(msg.message.chat.id, msgTemplate);
+    } catch (err) {
+      
+      console.log('err:', err.code);
+    }
     console.log(what_is_sent);
     msg.status = 'result sent';
     msg.sentmsg = what_is_sent;
@@ -163,7 +181,7 @@ if (process.argv[2] === 'cron') {
     upd.status = 'file converted';
     await saveUpdate(upd);
 
-    if (afile.duration < 25) { // используем метод для коротких аудио
+    if (afile.duration < 1) { // используем метод для коротких аудио
       console.log('short file')
       const stream = fs.createReadStream(`${fname}.opus`)
       const result = await (async () => {
